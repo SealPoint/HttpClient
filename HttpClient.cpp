@@ -278,28 +278,37 @@ int _tmain (int argc, _TCHAR* argv[])
     
     ::free(responseHeaders);
 
+    FILE* file(0);
+
     if (options.localFilePath())
     {
-        FILE* file = ::fopen(options.localFilePath(), "wb");
+        file = ::fopen(options.localFilePath(), "wb");
 
         if (!file)
         {
             ::printf("Could not open file %s for writing.\n", options.localFilePath());
             return 0;
         }
+    }
 
-        char* buffer(0);
-        int bufferSize(0);
+    char* buffer(0);
+    int bufferSize(0);
 
-        ReadFile(hRequest, &buffer, bufferSize);
+    ReadFile(hRequest, &buffer, bufferSize);
 
-        while (bufferSize)
+    while (bufferSize)
+    {
+        if (file)
         {
             ::fwrite(buffer, sizeof(char), bufferSize, file);
-            ::free(buffer);
-            ReadFile(hRequest, &buffer, bufferSize);
         }
 
+        ::free(buffer);
+        ReadFile(hRequest, &buffer, bufferSize);
+    }
+
+    if (file)
+    {
         ::fclose(file);
     }
 
